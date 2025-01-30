@@ -1,0 +1,31 @@
+name: 01. Deploy Neon Organization as an Azure Native ISV Service
+on: workflow_dispatch
+permissions:
+  id-token: write
+  contents: read
+jobs:
+    deploy-neon-organization-with-bicep:
+      runs-on: ubuntu-latest
+      steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      - name: Deploy Bicep
+        uses: azure/arm-deploy@v2
+        with:
+          scope: subscription
+          region:  westeurope
+          subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION }}
+          deploymentName: neon-organization
+          template: ./infrastructure/neon-organization.bicep
+          parameters: 'userPrincipalName=${{ secrets.AZURE_UPN }}'
+      - name: Azure Logout
+        run: |
+          az logout
+          az cache purge
+          az account clear

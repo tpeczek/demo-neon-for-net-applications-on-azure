@@ -1,8 +1,9 @@
 targetScope = 'subscription'
 
-param location string = 'westeurope'
+param location string = 'westus3'
+param projectName string = 'simple-asp-net-core-on-app-service-with-neon'
 
-var projectResourceGroupName = 'rg-neon-simple-asp-net-core-on-app-service' 
+var projectResourceGroupName = 'rg-${projectName}' 
 
 resource projectResourceGroup 'Microsoft.Resources/resourceGroups@2024-11-01' = {
   name: projectResourceGroupName
