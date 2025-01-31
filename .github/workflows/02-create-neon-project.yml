@@ -1,0 +1,38 @@
+name: 02. Create Neon Project
+on:
+  workflow_dispatch:
+    inputs:
+      project-name:
+        description: 'The name of the project to be created'
+        required: true
+        type: choice
+        options: 
+        - simple-asp-net-core-on-app-service-with-neon
+permissions:
+  id-token: write
+  contents: read
+env:
+  LOCATION: westus3
+  SECRETS_NAMES: '{ "simple-asp-net-core-on-app-service-with-neon": "SIMPLE_ASPNET_CORE_ON_APP_SERVICE_NEON_CONNECTION_STRING" }'
+jobs:
+    create-neon-project-with-cli:
+      runs-on: ubuntu-latest
+      steps:
+        - name: Setup Node
+          uses: actions/setup-node@v4
+        - name: Install Neon CLI
+          run: npm i -g neonctl
+        - name: Create Neon Project
+          id: create-project
+          run: |
+            export NEON_API_KEY=${{ secrets.NEON_API_KEY }}
+            project=$(neon projects create --name ${{ github.event.inputs.project-name }} --region-id azure-${{ env.LOCATION }} --output json)
+
+            echo "NEON_CONNECTION_STRING=$(jq -r '.connection_uris[0].connection_uri' <<< "$project")" >> $GITHUB_ENV
+        - name:  Create Neon Connection String Secret
+          run: |
+            secretName=$(jq -r '."${{ github.event.inputs.project-name }}"' <<< '${{ env.SECRETS_NAMES }}')
+
+            gh secret set $secretName --body ${{ env.NEON_CONNECTION_STRING }} --repo ${{ github.repository }}
+          env:
+            GH_TOKEN: ${{ secrets.REPOSITORY_SECRETS_PAT }}
