@@ -4,7 +4,7 @@ permissions:
   id-token: write
   contents: read
 env:
-  LOCATION: westus3
+  LOCATION: westeurope
   PROJECT_NAME: simple-asp-net-core-on-app-service-with-neon
 jobs:
     deploy-infrastructure:
@@ -27,6 +27,7 @@ jobs:
           deploymentName: simple-asp-net-core-on-app-service
           template: ./infrastructure/simple-asp-net-core-on-app-service.bicep
           parameters: 'location=${{ env.LOCATION }} projectName=${{ env.PROJECT_NAME }} neonConnectionString=${{ secrets.SIMPLE_ASPNET_CORE_ON_APP_SERVICE_NEON_CONNECTION_STRING }}'
+          failOnStdErr: false
       - name: Azure Logout
         run: |
           az logout

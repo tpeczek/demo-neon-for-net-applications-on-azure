@@ -13,7 +13,7 @@ resource projectResourceGroup 'Microsoft.Resources/resourceGroups@2024-11-01' = 
 }
 
 module projectResourceGroupModule 'simple-asp-net-core-on-app-service-rg.bicep' = {
-  name: 'neon-organization-rg'
+  name: 'simple-asp-net-core-on-app-service-rg'
   scope: projectResourceGroup
   params: {
     location: projectResourceGroup.location
