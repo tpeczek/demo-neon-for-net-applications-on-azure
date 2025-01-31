@@ -19,7 +19,7 @@ jobs:
         uses: azure/arm-deploy@v2
         with:
           scope: subscription
-          region:  westeurope
+          region:  westus3
           subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION }}
           deploymentName: neon-organization
           template: ./infrastructure/neon-organization.bicep

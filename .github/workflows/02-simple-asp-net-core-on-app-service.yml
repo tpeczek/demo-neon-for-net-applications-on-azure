@@ -1,0 +1,58 @@
+name: 02. Simple ASP.NET Core on App Service
+on: workflow_dispatch
+permissions:
+  id-token: write
+  contents: read
+env:
+  LOCATION: westus3
+  PROJECT_NAME: simple-asp-net-core-on-app-service-with-neon
+jobs:
+    create-neon-project:
+      runs-on: ubuntu-latest
+      outputs:
+        project: ${{ steps.create-project.outputs.project }}
+        credentials: ${{ steps.create-project.outputs.credentials }}
+      steps:
+        - name: Setup Node
+          uses: actions/setup-node@v4
+        - name: Install Neon CLI
+          run: npm i -g neonctl
+        - name: Create Neon Project
+          id: create-project
+          run: |
+            export NEON_API_KEY=${{ secrets.NEON_API_KEY }}
+            project=$(neon projects create --name ${{ env.PROJECT_NAME }} --region-id azure-${{ env.LOCATION }} --output json)
+
+            echo $( $project | jq '.connection_uris[0].connection_parameters.role' )
+            echo "postgresql://$(jq -r '.connection_uris[0].connection_parameters.role' <<< "$project"):$(jq -r '.connection_uris[0].connection_parameters.password' <<< "$project")@$(jq -r '.connection_uris[0].connection_parameters.host' <<< "$project")/$(jq -r '.connection_uris[0].connection_parameters.database' <<< "$project")?sslmode=require"
+
+            echo "credentials=postgresql://$(jq -r '.connection_uris[0].connection_parameters.role' <<< "$project"):$(jq -r '.connection_uris[0].connection_parameters.password' <<< "$project")@$(jq -r '.connection_uris[0].connection_parameters.host' <<< "$project")/$(jq -r '.connection_uris[0].connection_parameters.database' <<< "$project")?sslmode=require" >> "$GITHUB_OUTPUT"
+
+            
+    deploy-infrastructure:
+      runs-on: ubuntu-latest
+      needs: [create-neon-project]
+      steps:
+      - run: echo '${{ needs.create-neon-project.outputs.credentials }}'
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      - name: Deploy Bicep
+        uses: azure/arm-deploy@v2
+        with:
+          scope: subscription
+          region:  ${{ env.LOCATION }}
+          subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION }}
+          deploymentName: simple-asp-net-core-on-app-service
+          template: ./infrastructure/simple-asp-net-core-on-app-service.bicep
+          parameters: 'projectName=${{ env.PROJECT_NAME }} neonProjectCredentials=${{ needs.create-neon-project.outputs.credentials }}'
+      - name: Azure Logout
+        run: |
+          az logout
+          az cache purge
+          az account clear
