@@ -4,6 +4,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 17.12.35506.116
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{5EEDEEE3-CBF2-438C-99E0-D1DCC484898B}"
+	ProjectSection(SolutionItems) = preProject
+		src\demo-aspnetcore-simplewebapp.Dockerfile = src\demo-aspnetcore-simplewebapp.Dockerfile
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{1FA15FAC-B646-4540-BB14-31E0827785CA}"
 	ProjectSection(SolutionItems) = preProject

@@ -1,7 +1,7 @@
+using Azure.Identity;
+using Azure.Security.KeyVault.Secrets;
 using Microsoft.EntityFrameworkCore;
 using Demo.StartWars.EntityFrameworkCore;
-using Azure.Security.KeyVault.Secrets;
-using Azure.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,6 +12,8 @@ builder.Services.AddDbContext<StarWarsDbContext>(options =>
 });
 
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddJqGrid();
 
 var app = builder.Build();
 
@@ -30,7 +32,7 @@ app.MapStaticAssets();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}")
+    pattern: "{controller=StarWars}/{action=Index}")
     .WithStaticAssets();
 
 app.Run();

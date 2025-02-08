@@ -1,0 +1,46 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Demo.AspNetCore.SimpleWebApp</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.14.1/themes/base/jquery-ui.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.14.1/themes/base/theme.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/free-jqgrid/4.15.5/css/ui.jqgrid.min.css" />
+</head>
+<body>
+    <header></header>
+    <div>
+        ﻿@{
+            var gridOptions = new Lib.AspNetCore.Mvc.JqGrid.Helper.Options.JqGridOptions<Demo.AspNetCore.SimpleWebApp.Models.StarWarsCharacterViewModel>("jqgStarWarsCharacters")
+            {
+                CompatibilityMode = Lib.AspNetCore.Mvc.JqGrid.Infrastructure.Enums.JqGridCompatibilityModes.FreeJqGrid,
+                Url = Url.Action("Characters", "StarWars"),
+                MethodType = Lib.AspNetCore.Mvc.JqGrid.Infrastructure.Enums.JqGridMethodTypes.Post,
+                DataType = Lib.AspNetCore.Mvc.JqGrid.Infrastructure.Enums.JqGridDataTypes.Json,
+                JsonReader = new Lib.AspNetCore.Mvc.JqGrid.Infrastructure.Options.JqGridJsonReader { RepeatItems = false, RecordId = "Id" },
+                SortingName = "Id",
+                SortingOrder = Lib.AspNetCore.Mvc.JqGrid.Infrastructure.Enums.JqGridSortingOrders.Asc,
+                Caption = "StarWars Characters",
+                FooterEnabled = true,
+                UserDataOnFooter = true,
+                Pager = true,
+                RowsList = new List<int> { 10, 20, 30, 40, 50 },
+                RowsNumber = 10,
+                ViewRecords = true
+            };
+        }
+        @Html.JqGridHtml(gridOptions)
+    </div>
+    <footer></footer>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.14.1/jquery-ui.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/free-jqgrid/4.15.5/i18n/grid.locale-en.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/free-jqgrid/4.15.5/jquery.jqgrid.min.js"></script>
+    <script>
+        $(function () {
+            @Html.JqGridJavaScript(gridOptions)
+        });
+    </script>
+</body>
+</html>
