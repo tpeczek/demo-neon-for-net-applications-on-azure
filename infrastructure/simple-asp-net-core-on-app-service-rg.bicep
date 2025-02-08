@@ -112,6 +112,14 @@ resource projectAppService 'Microsoft.Web/sites@2024-04-01' = {
       acrUserManagedIdentityID: projectManagedIdentity.properties.clientId
       appSettings: [
         {
+          name: 'AZURE_CLIENT_ID'
+          value: projectManagedIdentity.properties.clientId
+        }
+        {
+          name: 'KEY_VAULT_URI'
+          value: 'https://${projectKeyVaultName}${environment().suffixes.keyvaultDns}/'
+        }
+        {
           name: 'WEBSITES_PORT'
           value: '8080'
         }

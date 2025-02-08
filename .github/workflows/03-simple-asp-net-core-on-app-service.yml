@@ -26,8 +26,39 @@ jobs:
           subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION }}
           deploymentName: simple-asp-net-core-on-app-service
           template: ./infrastructure/simple-asp-net-core-on-app-service.bicep
-          parameters: 'location=${{ env.LOCATION }} projectName=${{ env.PROJECT_NAME }} neonConnectionString=${{ secrets.SIMPLE_ASPNET_CORE_ON_APP_SERVICE_NEON_CONNECTION_STRING }}'
+          parameters: 'location=${{ env.LOCATION }} projectName=${{ env.PROJECT_NAME }} neonConnectionString="${{ secrets.SIMPLE_ASPNET_CORE_ON_APP_SERVICE_NEON_CONNECTION_STRING }}"'
           failOnStdErr: false
+      - name: Azure Logout
+        run: |
+          az logout
+          az cache purge
+          az account clear
+    build-push-and-deploy-webapp:
+      needs: [deploy-infrastructure]
+      runs-on: ubuntu-latest
+      steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      - name: Container Registry Login
+        run: |
+          az acr login -n crsimpleaspnetcoreonappservicewithneon
+      - name: Docker Build
+        run: |
+          docker build ./src -t crsimpleaspnetcoreonappservicewithneon.azurecr.io/demo-aspnetcore-simplewebapp:1.0.0 -f ./src/demo-aspnetcore-simplewebapp.Dockerfile
+      - name: Docker Push
+        run: |
+          docker push crsimpleaspnetcoreonappservicewithneon.azurecr.io/demo-aspnetcore-simplewebapp:1.0.0
+      - name: Deploy
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: app-${{ env.PROJECT_NAME }}
+          images: crsimpleaspnetcoreonappservicewithneon.azurecr.io/demo-aspnetcore-simplewebapp:1.0.0
       - name: Azure Logout
         run: |
           az logout

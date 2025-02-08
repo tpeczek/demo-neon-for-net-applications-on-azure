@@ -28,7 +28,7 @@ jobs:
             export NEON_API_KEY=${{ secrets.NEON_API_KEY }}
             project=$(neon projects create --name ${{ github.event.inputs.project-name }} --region-id azure-${{ env.LOCATION }} --output json)
 
-            echo "NEON_CONNECTION_STRING=$(jq -r '.connection_uris[0].connection_uri' <<< "$project")" >> $GITHUB_ENV
+            echo "NEON_CONNECTION_STRING=\"Host=$(jq -r '.connection_uris[0].connection_parameters.pooler_host' <<< "$project");Database=$(jq -r '.connection_uris[0].connection_parameters.database' <<< "$project");Username=$(jq -r '.connection_uris[0].connection_parameters.role' <<< "$project");Password=$(jq -r '.connection_uris[0].connection_parameters.password' <<< "$project");SSL Mode=Require;Trust Server Certificate=true\"" >> $GITHUB_ENV
         - name:  Create Neon Connection String Secret
           run: |
             secretName=$(jq -r '."${{ github.event.inputs.project-name }}"' <<< '${{ env.SECRETS_NAMES }}')
