@@ -6,7 +6,7 @@ Sample projects that explore Neon as a serverless Postgres alternative for .NET 
 
 To run any project in this repository, you can follow the steps below.
 
-1. Clone the repository 😉.
+1. Fork the repository 😉.
 2. [Configure a federated identity credential in Azure](https://learn.microsoft.com/en-us/azure/developer/github/connect-from-azure-openid-connect) and set the `AZURE_CLIENT_ID`, `AZURE_SUBSCRIPTION_ID`, and `AZURE_TENANT_ID` GitHub Actions secrets, so that the GitHub Actions workflows can authenticate to Azure.
 3. Set the `AZURE_UPN` GitHub Actions secret to the email address of the `Entra ID user` who will be the administrator creating a Neon organization. 
 4. Run the `01. Deploy Neon Organization as an Azure Native ISV Service` GitHub Actions workflow, which will deploy a Neon organization as an Azure Native ISV Service.
