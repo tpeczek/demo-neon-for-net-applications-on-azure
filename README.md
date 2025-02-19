@@ -2,6 +2,8 @@
 
 Sample projects that explore Neon as a serverless Postgres alternative for .NET applications on Azure.
 
+![1739283914997](https://github.com/user-attachments/assets/8e118034-e93c-4543-8b28-4d989219d198)
+
 ## Running the Projects
 
 To run any project in this repository, you can follow the steps below.
