@@ -13,26 +13,29 @@ permissions:
   contents: read
 env:
   LOCATION: westus3
-  SECRETS_NAMES: '{ "simple-asp-net-core-on-app-service-with-neon": "SIMPLE_ASPNET_CORE_ON_APP_SERVICE_NEON_CONNECTION_STRING" }'
 jobs:
-    create-neon-project-with-cli:
+    create-neon-project-with-bicep:
       runs-on: ubuntu-latest
       steps:
-        - name: Setup Node
-          uses: actions/setup-node@v4
-        - name: Install Neon CLI
-          run: npm i -g neonctl
-        - name: Create Neon Project
-          id: create-project
-          run: |
-            export NEON_API_KEY=${{ secrets.NEON_API_KEY }}
-            project=$(neon projects create --name ${{ github.event.inputs.project-name }} --region-id azure-${{ env.LOCATION }} --output json)
-
-            echo "NEON_CONNECTION_STRING=\"Host=$(jq -r '.connection_uris[0].connection_parameters.pooler_host' <<< "$project");Database=$(jq -r '.connection_uris[0].connection_parameters.database' <<< "$project");Username=$(jq -r '.connection_uris[0].connection_parameters.role' <<< "$project");Password=$(jq -r '.connection_uris[0].connection_parameters.password' <<< "$project");SSL Mode=Require;Trust Server Certificate=true\"" >> $GITHUB_ENV
-        - name:  Create Neon Connection String Secret
-          run: |
-            secretName=$(jq -r '."${{ github.event.inputs.project-name }}"' <<< '${{ env.SECRETS_NAMES }}')
-
-            gh secret set $secretName --body ${{ env.NEON_CONNECTION_STRING }} --repo ${{ github.repository }}
-          env:
-            GH_TOKEN: ${{ secrets.REPOSITORY_SECRETS_PAT }}
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      - name: Deploy Bicep
+        uses: azure/arm-deploy@v2
+        with:
+          scope: subscription
+          region:  westus3
+          subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION }}
+          deploymentName: 'neon-project-${{ github.event.inputs.project-name }}'
+          template: ./infrastructure/neon-project.bicep
+          parameters: 'projectName=${{ github.event.inputs.project-name }}'
+      - name: Azure Logout
+        run: |
+          az logout
+          az cache purge
+          az account clear
