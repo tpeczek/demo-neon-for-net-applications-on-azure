@@ -5,7 +5,7 @@ param organizationName string
 param userPrincipalName string
 param location string = resourceGroup().location
 
-resource neonOrganization 'Neon.Postgres/organizations@2024-08-01-preview' = {
+resource neonOrganization 'Neon.Postgres/organizations@2025-03-01' = {
   name: 'neon-${organizationName}'
   location: location
   properties: {
